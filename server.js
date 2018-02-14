@@ -40,6 +40,7 @@ app.get('/posts/:id', (req, res) => {
     });
 });
 
+// POST request => able to create new blog post
 app.post('/posts', (req, res) => {
     const requiredFields = ['title', 'content', 'author'];
     for (let i=0; i<requiredFields.length; i++) {
@@ -52,9 +53,14 @@ app.post('/posts', (req, res) => {
     }
    BlogPost
         .create(req.body)
-        .then((post) => res.json(post)); 
+        .then((post) => res.status(201).json(post.serialize()))
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({message: 'Internal server error'});
+    }); 
 })
 
+// PUT request => able to update blog post by ID
 app.put('/posts/:id', (req, res) => {
     if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
         const message = (`Request path id (${req.params.id}) and request body id (${req.body.id}) must match`);
@@ -64,21 +70,31 @@ app.put('/posts/:id', (req, res) => {
 
     const toUpdate = {};
     const updateableFields = ['title', 'content', 'author'];
-    updateableFields.forEach(function(field) {
+    updateableFields.forEach((field) => {
         if (field in req.body) {
         toUpdate[field] = req.body[field];
     }
 });
 
+// {new: true} allows update to happen after first send
     BlogPost
-        .findByIdAndUpdate(req.params.id, {$set: toUpdate})
-        .then((post) => res.status(200).json(post))
+        .findByIdAndUpdate(req.params.id, {$set: toUpdate}, {new: true})
+        .then((post) => res.status(200).json(post.serialize()))
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({message: 'Internal server error'});
+    });
 });
 
+// DELETE request => able to delete blog post by ID
 app.delete('/posts/:id', (req, res) => {
     BlogPost
         .findByIdAndRemove(req.params.id)
         .then(() => res.status(204).end())
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({message: 'Internal server error'});
+    });
 });
 
 let server;
