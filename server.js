@@ -12,6 +12,7 @@ const {BlogPost} = require('./models');
 const app = express();
 app.use(bodyParser.json());
 
+// GET requests to /blog-posts => returns all blog posts
 app.get('/blog-posts', (req, res) => {
     BlogPost
         .find()
@@ -25,6 +26,17 @@ app.get('/blog-posts', (req, res) => {
             err => {
                 console.error(err);
                 res.status(500).json({message: 'Internal server error'});
+    });
+});
+
+// GET request by ID => returns one blog post
+app.get('/blog-posts/:id', (req, res) => {
+    BlogPost
+        .findById(req.params.id)
+        .then(post => res.json(post.serialize()))
+        .catch(err => {
+            console.error(err);
+            res.status(500).json({message: 'Internal server error'});
     });
 });
 
