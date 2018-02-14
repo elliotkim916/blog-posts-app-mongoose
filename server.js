@@ -54,6 +54,33 @@ app.post('/posts', (req, res) => {
         .create(req.body)
         .then((post) => res.json(post)); 
 })
+
+app.put('/posts/:id', (req, res) => {
+    if (!(req.params.id && req.body.id && req.params.id === req.body.id)) {
+        const message = (`Request path id (${req.params.id}) and request body id (${req.body.id}) must match`);
+        console.error(message);
+        return res.status(400).json({message: message});
+    }
+
+    const toUpdate = {};
+    const updateableFields = ['title', 'content', 'author'];
+    updateableFields.forEach(function(field) {
+        if (field in req.body) {
+        toUpdate[field] = req.body[field];
+    }
+});
+
+    BlogPost
+        .findByIdAndUpdate(req.params.id, {$set: toUpdate})
+        .then((post) => res.status(200).json(post))
+});
+
+app.delete('/posts/:id', (req, res) => {
+    BlogPost
+        .findByIdAndRemove(req.params.id)
+        .then(() => res.status(204).end())
+});
+
 let server;
 
 function runServer(databaseUrl, port=PORT) {
