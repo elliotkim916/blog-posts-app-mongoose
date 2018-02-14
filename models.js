@@ -6,7 +6,8 @@ const blogPostSchema = mongoose.Schema({
     author: {
         firstName: {type: String, required: true},
         lastName: {type: String, required: true}
-    }
+    },
+    created: {type: Date, default: Date.now}
 });
 
 blogPostSchema.virtual('authorName').get(function() {
@@ -14,11 +15,13 @@ blogPostSchema.virtual('authorName').get(function() {
 
 blogPostSchema.methods.serialize = function() {
     return {
+        id: this._id,
         title: this.title,
         content: this.content,
-        author: this.authorName
+        author: this.authorName,
+        created: this.created
     };
-}
+};
 
 const BlogPost = mongoose.model('BlogPost', blogPostSchema);
 
