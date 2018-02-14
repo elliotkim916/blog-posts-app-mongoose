@@ -13,7 +13,7 @@ const app = express();
 app.use(bodyParser.json());
 
 // GET requests to /blog-posts => returns all blog posts
-app.get('/blog-posts', (req, res) => {
+app.get('/posts', (req, res) => {
     BlogPost
         .find()
         .then(blogposts => {
@@ -30,7 +30,7 @@ app.get('/blog-posts', (req, res) => {
 });
 
 // GET request by ID => returns one blog post
-app.get('/blog-posts/:id', (req, res) => {
+app.get('/posts/:id', (req, res) => {
     BlogPost
         .findById(req.params.id)
         .then(post => res.json(post.serialize()))
@@ -40,6 +40,20 @@ app.get('/blog-posts/:id', (req, res) => {
     });
 });
 
+app.post('/posts', (req, res) => {
+    const requiredFields = ['title', 'content', 'author'];
+    for (let i=0; i<requiredFields.length; i++) {
+        const field = requiredFields[i];
+        if (!(field in req.body)) {
+            const message = `Missing \`${field}\` in request body`
+            console.error(message);
+            return res.status(400).send(message);
+        }
+    }
+   BlogPost
+        .create(req.body)
+        .then((post) => res.json(post)); 
+})
 let server;
 
 function runServer(databaseUrl, port=PORT) {
