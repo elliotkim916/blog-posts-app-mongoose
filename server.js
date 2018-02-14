@@ -58,7 +58,7 @@ app.post('/posts', (req, res) => {
             console.error(err);
             res.status(500).json({message: 'Internal server error'});
     }); 
-})
+});
 
 // PUT request => able to update blog post by ID
 app.put('/posts/:id', (req, res) => {
